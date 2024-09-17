@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Matrix and Mask Input</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    #main {
+        margin: 0 20px;
+    }
+
+    input[type="number"] {
+        max-width: 40px;
+    }
+
+    #btn-result {
+        margin: 20px;
+    }
+    h4 {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .disFlex {
+        display: flex;
+    }
+    .col-6 {
+        flex: 1;
+    }
+
+    .minwidth-40 {
+        min-width: 40px;
+    }
+
+    table > caption {
+        margin-bottom: 12px;
+        color: #f5402d;
+        font-weight: bold;
+    }
+
+  </style>
+
+
+</head>
+
+<body>
+
+    <div id="main">
+        <h1>Matrix and Mask Input</h1>
+
+        <div class="disFlex">
+            <div class="col-6">
+                <div class="matrix-picture">
+                    <form id="picture-form">
+                      <h2 class="title-matrix">Enter 4X4 matrix picture:</h2>
+                      <table class="table">
+                        <tr>
+                            <td><input value="0" type="number" id="p11"></td>
+                            <td><input value="2" type="number" id="p12"></td>
+                            <td><input value="6" type="number" id="p13"></td>
+                            <td><input value="4" type="number" id="p14"></td>
+                        </tr>
+                        
+                        <tr>
+                            <td><input value="3" type="number" id="p11"></td>
+                            <td><input value="5" type="number" id="p12"></td>
+                            <td><input value="1" type="number" id="p13"></td>
+                            <td><input value="7" type="number" id="p14"></td>
+                        </tr>
+                        
+                        <tr>
+                            <td><input value="1" type="number" id="p11"></td>
+                            <td><input value="7" type="number" id="p12"></td>
+                            <td><input value="3" type="number" id="p13"></td>
+                            <td><input value="6" type="number" id="p14"></td>
+                        </tr>
+                        
+                        <tr>
+                            <td><input value="2" type="number" id="p11"></td>
+                            <td><input value="6" type="number" id="p12"></td>
+                            <td><input value="5" type="number" id="p13"></td>
+                            <td><input value="4" type="number" id="p14"></td>
+                        </tr>
+                      </table>
+                        
+                    </form>
+        
+                </div>
+            </div>
+
+            <div class="col-6">
+                <div class="matrix-mask">
+                    <form id="mask-form">
+                      <h2 class="title-matrix">Enter 3X3 matrix picture:</h2>
+                      <h4>DivideFor</h4>
+                      <h4><input value="1" id="divideFor"></h4>
+
+                      <table class="table">
+                        <tr>
+                            <td><input value="1" type="number" id="p11"></td>
+                            <td><input value="1" type="number" id="p13"></td>
+                            <td><input value="1" type="number" id="p14"></td>
+                        </tr>
+                        
+                        <tr>
+                            <td><input value="1" type="number" id="p11"></td>
+                            <td><input value="8" type="number" id="p12"></td>
+                            <td><input value="1" type="number" id="p13"></td>
+                        </tr>
+                        
+                        <tr>
+                            <td><input value="1" type="number" id="p11"></td>
+                            <td><input value="1" type="number" id="p12"></td>
+                            <td><input value="1" type="number" id="p13"></td>
+                        </tr>
+                        
+                      </table>
+                        
+                    </form>
+        
+                </div>
+            </div>
+        </div>
+
+                
+        <button id="btn-result">Result</button>
+        <div class="disFlex">
+            <div class="col-6">
+                <div id="complete-display"></div>
+            </div>
+            <div class="col-6">
+                <div id="result-display"></div>
+            </div>
+        </div>
+
+    </div>
+
+
+  <script>
+
+    function getPictureMatrix(pictureForm) {
+        const pictureData = [];
+        
+        // Get data from picture form
+        pictureForm.querySelectorAll('input[type="number"]').forEach(function(input) {
+            pictureData.push(Number(input.value));
+        });
+        
+        // Convert 1D array to 2D array (4x4 pictureMatrix)
+        const pictureMatrix = [];
+        for (let i = 0; i < pictureData.length; i += 4) {
+            pictureMatrix.push(pictureData.slice(i, i + 4));
+        }
+
+        return pictureMatrix;
+    }
+
+    function getMaskMatrix(maskForm) {
+        const maskData = [];
+
+        // Get data from mask form
+        maskForm.querySelectorAll('input[type="number"]').forEach(function(input) {
+            maskData.push(Number(input.value));
+        });
+        
+        // Convert 1D array to 2D array (4x4 maskMatrix)
+        const maskMatrix = [];
+        for (let i = 0; i < maskData.length; i += 3) {
+            maskMatrix.push(maskData.slice(i, i + 3));
+        }
+
+        return maskMatrix;
+    }
+
+    function createDefaultMatrix(edges) {
+        const defaultMatrix = [];
+        for (let i = 0; i < edges; i++) {
+            defaultMatrix.push(new Array(edges).fill(0));
+        }
+
+        return defaultMatrix;
+    }
+
+    function calculateMatrix(x, y, pictureMatrix, maskMatrix) {
+        const mediateMatrix = createDefaultMatrix(3);
+        let result = 0;
+
+
+        mediateMatrix[0][0] = x-1>=0 && y-1>=0 ? Number(pictureMatrix[x-1][y-1]) : 0;
+        mediateMatrix[0][1] = x-1>=0 ? Number(pictureMatrix[x-1][y]) : 0;
+        mediateMatrix[0][2] = x-1>=0 && y+1<4 ? Number(pictureMatrix[x-1][y+1]) : 0;
+        mediateMatrix[1][0] = y-1>=0 ? Number(pictureMatrix[x][y-1]): 0;
+        mediateMatrix[1][1] = Number(pictureMatrix[x][y]);
+        mediateMatrix[1][2] = y+1<4 ? Number(pictureMatrix[x][y+1]) : 0;
+        mediateMatrix[2][0] = x+1<4 && y-1>=0 ? Number(pictureMatrix[x+1][y-1]) : 0;
+        mediateMatrix[2][1] = x+1<4 ? Number(pictureMatrix[x+1][y]) : 0;
+        mediateMatrix[2][2] = x+1<4 && y+1<4 ? Number(pictureMatrix[x+1][y+1]) : 0;
+
+
+        return mediateMatrix;
+        
+    }
+
+    function plus2Matrix(mediateMatrix, maskMatrix) {
+        let result = 0;
+
+        for(let i = 0; i < 3; i++) {
+            for(let j = 0; j < 3; j++) {
+                result += mediateMatrix[i][j] * maskMatrix[i][j];   
+            }
+        }
+
+        return result;
+    }
+
+    function handlePictureMatrix(pictureMatrix, maskMatrix, resultMatrix) {
+
+        // console.log("Result matrix: ", resultMatrix);
+        // console.log("Mask matrix: ", maskMatrix);
+
+       
+        const re = calculateMatrix(0, 3, pictureMatrix, maskMatrix);
+        
+        // console.log("0,0: ", plus2Matrix(re, maskMatrix))
+
+        for(let i = 0; i < 4; i++) {
+            for(let j = 0; j < 4; j++) {
+                const reMatrix = calculateMatrix(i, j, pictureMatrix, maskMatrix);
+                resultMatrix[i][j] = plus2Matrix(reMatrix, maskMatrix);
+
+            }
+        }
+
+        // console.log("Result Matrix: ", resultMatrix);
+
+        return resultMatrix;
+
+    }
+
+    function displayMatrix(matrix, idComponent, titleTable) {
+        const table = document.createElement('table');
+        table.className = 'table';
+        table.border = 1; // Add a border to the table
+
+        // Create table caption
+        const caption = document.createElement('caption');
+        caption.textContent = titleTable;
+        table.appendChild(caption);
+
+
+        // Create table rows and cells
+        matrix.forEach((row) => {
+            const rowElement = document.createElement('tr');
+            row.forEach((cell) => {
+                const cellElement = document.createElement('td');
+                cellElement.className = 'minwidth-40';
+                cellElement.textContent = cell;
+                rowElement.appendChild(cellElement);
+            });
+            table.appendChild(rowElement);
+        });
+
+        // Get the element with the id "${idComponent}"
+        const resultDisplay = document.getElementById(`${idComponent}`);
+
+        // Clear any existing content in the element
+        resultDisplay.innerHTML = '';
+
+        // Add the table to the element
+        resultDisplay.appendChild(table);
+
+    }
+
+
+
+
+    function run() {
+
+      // Get all input fields
+        const inputFields = document.querySelectorAll('input');
+
+        // Add event listener to each input field
+        inputFields.forEach((field) => {
+            field.addEventListener('click', () => {
+                field.value = ''; // Clear the input field
+            });
+        });
+        
+        const btnResult = document.getElementById('btn-result');
+        console.log(btnResult);
+
+
+        btnResult.addEventListener('click', function() {
+            const pictureForm = document.getElementById('picture-form');
+            const maskForm = document.getElementById('mask-form');
+    
+            const pictureMatrix = getPictureMatrix(pictureForm);
+            const maskMatrix = getMaskMatrix(maskForm);
+            let resultMatrix = createDefaultMatrix(4);
+    
+            resultMatrix = handlePictureMatrix(pictureMatrix, maskMatrix, resultMatrix);
+            console.log(resultMatrix)
+    
+            displayMatrix(resultMatrix, 'complete-display', 'Table after calculater (not divideFor)');
+
+            let finishMatrix = resultMatrix;
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    if (finishMatrix[i][j] < 0) {
+                        finishMatrix[i][j] = 0;
+                    }
+                }
+            }
+
+            const divideForValue = Number(document.getElementById('divideFor').value);
+            console.log("Mul: ", divideForValue)
+
+
+            if (divideFor != 1) 
+                for (let i = 0; i < 4; i++) {
+                    for (let j = 0; j < 4; j++) {
+                        console.log(finishMatrix[i][j]);
+                        console.log(divideForValue);
+                        finishMatrix[i][j] = Math.round(finishMatrix[i][j] / divideForValue);
+                        console.log(finishMatrix[i][j]);
+                    }
+                }
+            
+
+            displayMatrix(finishMatrix, 'result-display', 'Result');
+
+           
+
+        });
+
+        
+    }
+
+    run();
+
+    
+
+  </script>
+</body>
+</html>
